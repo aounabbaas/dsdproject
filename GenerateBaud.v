@@ -3,7 +3,7 @@
 module GenerateBaud( input clk,input rst, output reg txclk, output reg rxclk);
 reg [15:0] counter1 = 0;
 reg [15:0] counter2 = 0;
-reg [15:0] baudrate = 9600;
+parameter baudrate = 9600;
 parameter sysclk=100_000_000;
 
 
@@ -12,7 +12,7 @@ always @(posedge clk) begin
   counter1<=0;
   rxclk<=0;
   end
-  if (counter1 >= (sysclk/(baudrate*8*2))) begin
+  if (counter1 >= (sysclk/(baudrate*2))) begin
 		counter1 <= 0;
 		rxclk <= ~rxclk;  // Toggle baud clock
   end else begin

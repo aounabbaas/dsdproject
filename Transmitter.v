@@ -17,8 +17,7 @@ reg [2:0] state, next_state; // FSM state registers
 localparam IDLE      = 3'b000,
            LOAD_THR  = 3'b001,
            LOAD_TSR  = 3'b010,
-           TRANSMIT  = 3'b011,
-           COMPLETE  = 3'b100;
+           TRANSMIT  = 3'b011;
 
 // FSM State Transition
 always @(posedge bclk or posedge reset) begin
@@ -42,13 +41,10 @@ always @(*) begin
             next_state = TRANSMIT;
         end
         TRANSMIT: begin
-            if (bit_counter == 4'd9)
-                next_state = COMPLETE;
+            if (bit_counter >= 4'd8)
+                next_state = IDLE;
             else
                 next_state = TRANSMIT;
-        end
-        COMPLETE: begin
-            next_state = IDLE;
         end
         default: begin
             next_state = IDLE;
@@ -61,7 +57,7 @@ always @(posedge bclk or posedge reset) begin
     if (reset) begin
 		 tx_out <= 1'b1;          // Default high (idle state for UART)
 		 tx_status <= 1'b1;       // Ready to transmit
-		 bit_counter <= 4'b0000;
+		 bit_counter <= 4'b0;
 		 TSR <= 10'b0;
 		 THR <= 8'b0;
 	 end else begin
@@ -70,6 +66,7 @@ always @(posedge bclk or posedge reset) begin
 				  IDLE: begin
 						tx_status <= 1'b1;  // Ready to transmit
 						tx_out <= 1'b1;     // Idle state
+						bit_counter <= 0;
 				  end
 				  LOAD_THR: begin
 						THR <= d_in;        // Load data into THR
@@ -83,9 +80,9 @@ always @(posedge bclk or posedge reset) begin
 						tx_out <= TSR[bit_counter]; // Transmit the current bit
 						bit_counter <= bit_counter + 1;
 				  end
-				  COMPLETE: begin
-						tx_out <= 1'b1;  // Set idle state
-						tx_status <= 1'b1; // Ready for the next transmission
+				  default: begin
+				      tx_status <= 1'b1;  // Ready to transmit
+						tx_out <= 1'b1;     // Idle state
 				  end
 			 endcase
 		end
