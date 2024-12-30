@@ -10,7 +10,6 @@ module Memory_tb;
     reg [1:0] row;
     reg [1:0] col;
     reg write_enable;
-	 reg read_enable;
     reg [7:0] write_data;
     wire [7:0] read_data;
 
@@ -21,7 +20,6 @@ module Memory_tb;
         .row(row),
         .col(col),
         .write_enable(write_enable),
-		  .read_enable(read_enable),
         .write_data(write_data),
         .read_data(read_data)
     );
@@ -42,7 +40,7 @@ initial begin
     col = 0;
     write_enable = 0;
     write_data = 0;
-    read_enable = 0;
+
 
     // Apply reset
     #10;
@@ -65,7 +63,6 @@ initial begin
     write_enable = 0;
 
     // Read back data from Matrix 0
-    read_enable = 1;
     matrix_select = 0;
 
     row = 0; col = 0; #10; #10; // Wait one clock cycle
